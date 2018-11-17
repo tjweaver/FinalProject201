@@ -1,0 +1,37 @@
+DROP DATABASE IF EXISTS songsDB;
+CREATE DATABASE songsDB;
+
+USE songsDB;
+CREATE TABLE Songs (
+	songID INT(11) PRIMARY KEY AUTO_INCREMENT,
+	filePath VARCHAR(50) NOT NULL,
+    imageFilePath VARCHAR(50) NOT NULL,
+    artist VARCHAR(20) NOT NULL,
+    album VARCHAR(20) NOT NULL,
+    songName VARCHAR(20) NOT NULL,
+    yearofRelease INT(4) NOT NULL,
+    genre VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE Users (
+	userID INT(11) PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(20) NOT NULL,
+    firstName VARCHAR(20) NOT NULL,
+    lastName VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE Favorites (
+	userID INT(11) NOT NULL,
+    songID int(11) NOT NULL,
+    FOREIGN KEY fk1(userID) REFERENCES Users(userID),
+    FOREIGN KEY fk2(songID) REFERENCES Songs(songID)
+);
+
+CREATE TABLE Ratings (
+	ratingID INT(11) PRIMARY KEY AUTO_INCREMENT,
+    userID INT(11) NOT NULL,
+    songID INT(11) NOT NULL,
+    rating   INT(2) NOT NULL,
+    FOREIGN KEY fk1(userID) REFERENCES Users(userID),
+    FOREIGN KEY fk2(songID) REFERENCES Songs(songID)
+);
