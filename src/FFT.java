@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 
@@ -38,18 +39,31 @@ public static void main(String[] args)
 	one.analyze("Demons.mp3");
 	one.analyze("Lance s Song.mp3");
 	one.analyze("One Step Up.mp3");*/
-	System.out.println(one.compare("Jolene", "Ocean"));
+	/*System.out.println(one.compare("Jolene", "Ocean"));
 	System.out.println(one.compare("Jolene", "Sthlm Sunset"));
 	System.out.println(one.compare("Jolene", "Demons"));
 	System.out.println(one.compare("Jolene", "Colder Weather"));
 	System.out.println(one.compare("Jolene", "One Step Up"));
 	System.out.println(one.compare("Jolene", "Down the Road"));
 	System.out.println(one.compare("Jolene", "Lance's Song"));
-	
+	*/
 	//System.out.println(one.compare("Jolene", "Ocean"));
 	//System.out.println(one.compare("Sthlm Sunset", "Ocean"));
-	
-	
+	/*File dir = new File("media/");
+	File[] directoryListing = dir.listFiles();
+	if(directoryListing != null)
+	{
+		for(File child: directoryListing)
+		{
+			one.analyze("media/" + child.getName());
+		}
+	}*/
+	ArrayList<String> playlist = null;
+	playlist = one.PlaylistBuilder("Ooh! My Head");
+	for(int i = 0; i<playlist.size(); i++)
+	{
+		System.out.println(playlist.get(i));
+	}
 	
 }
 
@@ -357,7 +371,7 @@ public double compare(String name1, String name2)
 		//matrix comparison going to happen next
 
 		
-		if(count1.getInt(1) <= 10000)
+		if(count1.getInt(1) <= count2.getInt(1))
 		{
 			for(int i = 0; i < count1.getInt(1); i++)
 			{
@@ -369,7 +383,7 @@ public double compare(String name1, String name2)
 		}
 		else
 		{
-			for(int i = 0; i < 10000; i++)
+			for(int i = 0; i < count2.getInt(1) ; i++)
 			{
 				for(int j = 0; j < 12; j++)
 				{
@@ -393,58 +407,92 @@ public double compare(String name1, String name2)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*private void rawplay(AudioFormat targetFormat, AudioInputStream din) throws IOException,  LineUnavailableException
+public ArrayList<String> PlaylistBuilder(String songname)
 {
-  byte[] data = new byte[4096];
-  SourceDataLine line = getLine(targetFormat);
-  if (line != null)
-  {
-    // Start
-    line.start();
-    int nBytesRead = 0, nBytesWritten = 0;
-    while (nBytesRead != -1)
-    {
-        nBytesRead = din.read(data, 0, data.length);
-        if (nBytesRead != -1) nBytesWritten = line.write(data, 0, nBytesRead);
-    }
-    // Stop
-    line.drain();
-    line.stop();
-    line.close();
-    din.close();
-  }
+	ArrayList< String> playlist = new ArrayList<String>();
+	ArrayList<Double> range = new ArrayList<Double>();
+	ArrayList< String> playlist_final = new ArrayList<String>();
+	Connection conn = null;
+	Statement st = null;
+	ResultSet rs = null;
+	ResultSet rs2 = null;
+	ResultSet frames1 = null;
+	ResultSet frames2 = null;	
+	ResultSet count1 = null;
+	ResultSet count2 = null;
+	try {
+	Class.forName("com.mysql.jdbc.Driver"); //this is could be done in a config file
+	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/project?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
+	PreparedStatement p0 = conn.prepareStatement("SELECT genre FROM song_details WHERE title=?");
+	PreparedStatement p00 = conn.prepareStatement("SELECT title FROM song_details WHERE title !=? AND genre=?");
+	p0.setString(1, songname);
+	p00.setString(1, songname);
+	rs = p0.executeQuery();
+	rs.next();
+	p00.setString(2, rs.getString(1) );
+	rs2 = p00.executeQuery();
+	double sum = 0;
+	while(rs2.next())
+	{
+		sum = compare(songname, rs2.getString("title"));
+		playlist.add(rs2.getString("title"));
+		range.add(sum);
+		sum = 0;
+		
+	}
+	//sort the array in ascending order
+	/*for(int i = 0; i < playlist.size(); i++)
+	{
+		System.out.println(playlist.get(i) + ": " + range.get(i));
+	}*/
+	for(int i = 0; i < playlist.size(); i++)
+	{
+		for(int j = 0; j < playlist.size() -1; j++)
+		{
+			if(range.get(j) > range.get(j+1))
+			{
+				double temp = range.get(j);
+				range.set(j, range.get(j+1));
+				range.set(j+1, temp);
+				String tempp = playlist.get(j);
+				playlist.set(j, playlist.get(j+1));
+				playlist.set(j+1, tempp);
+					
+			}
+		}
+	}
+	/*int median = playlist.size()/2;
+	for(int i = median; i < median + 6; i++)
+	{
+		playlist_final.add(playlist.get(i));
+	}
+	for(int i = median -6; i < median; i++)
+	{
+		playlist_final.add(playlist.get(i));
+	}*/
+	for(int i = 2; i < 14; i++)
+	{
+		playlist_final.add(playlist.get(i));
+	}
+	return playlist_final;
+	
+	//sort the playlist
+	
+	
+	
+	
+	
+	
+	
+	}catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return playlist_final;
 }
-
-private SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException
-{
-  SourceDataLine res = null;
-  DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-  res = (SourceDataLine) AudioSystem.getLine(info);
-  res.open(audioFormat);
-  return res;
-}*/
 
 
 } 
