@@ -1,9 +1,11 @@
-class StringConstants {
+class Constants {
+	public static final int GOOD_RES = 1;
+	public static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";
+	public static final String DRIVER_STRING = "jdbc:mysql://localhost/songsDB?user=root&password=PyVit66^&useSSL=false&allowPublicKeyRetrieval=true";
 	// Insertion statements
 	public static final String ADD_USER = "INSERT INTO Users (username, firstName, lastName, passhash, salt) VALUES (?,?,?,?,?)";
 	public static final String ADD_SONG = "INSERT INTO Songs (filePath, imageFilePath, artist, album, songName, yearofRelease, genre) VALUES(?,?,?,?,?,?,?)";
-	public static final String ADD_TO_PLAYLIST  = "INSERT INTO Ratings (userID, songID) VALUES (?,?)";
-	public static final String ADD_PLAYLIST = "INSERT INTO Playlists (userID, songID, playlistName) VALUES (?,?,?)";
+	public static final String ADD_TO_PLAYLIST  = "INSERT INTO Playlists (playlistName, userID, songID) VALUES (?,?,?)";
 	// Selection statements
 	public static final String GET_SONG_BY_NAME = "SELECT * FROM Songs WHERE songName=?";
 	public static final String GET_SONG_BY_ARTIST = "SELECT * FROM Songs WHERE artist=?";

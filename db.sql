@@ -17,12 +17,16 @@ CREATE TABLE Users (
 	userID INT(11) PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(20) NOT NULL,
     firstName VARCHAR(20) NOT NULL,
-    lastName VARCHAR(20) NOT NULL
+    lastName VARCHAR(20) NOT NULL,
+    passhash VARCHAR(20) NOT NULL,
+    salt VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE Favorites (
+CREATE TABLE Playlists (
+	playlistID INT(11) PRIMARY KEY AUTO_INCREMENT,
 	userID INT(11) NOT NULL,
-    songID int(11) NOT NULL,
+    songID INT(11) NOT NULL,
+    playlistName VARCHAR(30) NOT NULL,
     FOREIGN KEY fk1(userID) REFERENCES Users(userID),
     FOREIGN KEY fk2(songID) REFERENCES Songs(songID)
 );
@@ -32,6 +36,6 @@ CREATE TABLE Ratings (
     userID INT(11) NOT NULL,
     songID INT(11) NOT NULL,
     rating   INT(2) NOT NULL,
-    FOREIGN KEY fk1(userID) REFERENCES Users(userID),
-    FOREIGN KEY fk2(songID) REFERENCES Songs(songID)
+    FOREIGN KEY fk3(userID) REFERENCES Users(userID),
+    FOREIGN KEY fk4(songID) REFERENCES Songs(songID)
 );
