@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 /* Functions to implement
  * addUser(username, firstName, lastName, passhash, salt)
@@ -45,6 +46,40 @@ class DatabaseConnector{
 			System.out.println(e.getMessage());
 		}
 		connected = false;
+	}
+	
+	// Custom object instantiation
+	
+	public Song createSong() {
+		// Convert result into POJO
+		String path = null, iPath = null, artist = null, album = null, songName = null, genre = null;
+		int year = -1;
+		try {
+			path = rs.getString("filePath");
+			iPath = rs.getString("imageFilePath");
+			artist = rs.getString("artist");
+			album = rs.getString("album");
+			songName = rs.getString("songName");
+			genre = rs.getString("genre");
+			year = rs.getShort("yearOfRelease");
+			// Return POJO
+			return new Song(path, iPath, artist, album, songName, year, genre);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return null;
+	}
+	
+	public ArrayList<Song> createSongs(){
+		ArrayList<Song> songs = new ArrayList<Song>();
+		try {
+			while(rs.next()) {
+				songs.add(createSong());
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return songs;
 	}
 	
 	// Insertion functions
@@ -109,4 +144,94 @@ class DatabaseConnector{
 			System.out.println(e.getMessage());
 		}
 	}
+	
+	// Selection statements
+	public Song getSongByID(int id) {
+		if (!connected) return null;
+		try {
+			// Prepare
+			ps = conn.prepareStatement(Constants.GET_SONG_BY_ID);
+			ps.setInt(1, id);
+			// Execute
+			rs = ps.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		// Format
+		return createSong();
+	}
+	
+	public Song getSongByName(String name) {
+		if (!connected) return null;
+		try {
+			// Prepare
+			ps = conn.prepareStatement(Constants.GET_SONG_BY_NAME);
+			ps.setString(1, name);
+			// Execute
+			rs = ps.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		// Format
+		return createSong();
+		
+	}
+	
+	public ArrayList<Song> getSongsByArtist(String artist) {
+		if (!connected) return null;
+		try {
+			// Prepare
+			ps = conn.prepareStatement(Constants.GET_SONGS_BY_ARTIST);
+			ps.setString(1, artist);
+			// Execute
+			rs = ps.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		// Format
+		return createSongs();
+	}
+	
+	public ArrayList<Song> getSongsByGenre(String genre) {
+		if (!connected) return null;
+		try {
+			// Prepare
+			ps = conn.prepareStatement(Constants.GET_SONGS_BY_GENRE);
+			ps.setString(1, genre);
+			// Execute
+			rs = ps.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		// Format
+		return createSongs();
+	}
+	
+	public ArrayList<Song> getSongsByYear(short year) {
+		if (!connected) return null;
+		try {
+			// Prepare
+			ps = conn.prepareStatement(Constants.GET_SONGS_BY_GENRE);
+			ps.setShort(1, year);
+			// Execute
+			rs = ps.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		// Format
+		return createSongs();
+	}
+	
+	public Playlist getPlaylist(String name) {
+		
+	}
 }
+
+
+
+
+
+
+
+
+
