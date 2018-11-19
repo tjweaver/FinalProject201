@@ -15,15 +15,15 @@ class DatabaseConnector{
 	
 	public void connect(){
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/Lab10?user=root&password=PyVit66^&useSSL=false");
+			Class.forName(Constants.DRIVER_CLASS);
+			conn = DriverManager.getConnection(Constants.DRIVER_STRING);
 			connected = true;
 		} catch (ClassNotFoundException e) {
 			connected = false;
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} catch (SQLException e) {
 			connected = false;
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 	
@@ -40,9 +40,9 @@ class DatabaseConnector{
 			if(ps != null ){
 				ps = null;
 			}
-		}catch(SQLException sqle){
+		}catch(SQLException e){
 			System.out.println("connection close error");
-			sqle.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		connected = false;
 	}
@@ -54,33 +54,59 @@ class DatabaseConnector{
 			// Generate some salt
 			salt = "rand";
 			// prepare the statement
-			ps = conn.prepareStatement(StringConstants.ADD_USER);
-			ps.setString(1,username);
-			ps.setString(2,firstName);
-			ps.setString(3,lastName);
+			ps = conn.prepareStatement(Constants.ADD_USER);
+			ps.setString(1, username);
+			ps.setString(2, firstName);
+			ps.setString(3, lastName);
 			ps.setString(4, passhash);
 			ps.setString(5, salt);
 			int res = ps.executeUpdate();
-			if(res != 2) {
+			if(res != Constants.GOOD_RES) {
 				// error
 				System.out.println("Error adding a user.");
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 	
 	public void addSong(String filePath, String imageFilePath, String artist, String album, String songName, short yearofRelease, String genre) {
 		if (!connected) return;
+		try {
+			// prepare the statement
+			ps = conn.prepareStatement(Constants.ADD_SONG);
+			ps.setString(1, filePath);
+			ps.setString(2, imageFilePath);
+			ps.setString(3, artist);
+			ps.setString(4, album);
+			ps.setString(5, songName);
+			ps.setInt(6, yearofRelease);
+			ps.setString(7, genre);
+			int res = ps.executeUpdate();
+			if(res != Constants.GOOD_RES) {
+				// error
+				System.out.println("Error adding a song.");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
-	public void addSongToPlaylist(int userID, int songID) {
+	public void addSongToPlaylist(int userID, int songID, String name) {
 		if (!connected) return;
+		try {
+			// prepare the statement
+			ps = conn.prepareStatement(Constants.ADD_TO_PLAYLIST);
+			ps.setString(1, name);
+			ps.setInt(2, userID);
+			ps.setInt(3, songID);
+			int res = ps.executeUpdate();
+			if(res != Constants.GOOD_RES) {
+				// error
+				System.out.println("Error adding a song to a playlist.");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
 	}
-	
-	public void addPlaylist(int userID, int songID, String playlistName){
-		if (!connected) return;
-	}
-	
 }
