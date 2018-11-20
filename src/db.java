@@ -49,7 +49,6 @@ class DatabaseConnector{
 	}
 	
 	// Custom object instantiation
-	
 	public Song createSong() {
 		// Convert result into POJO
 		String path = null, iPath = null, artist = null, album = null, songName = null, genre = null;
@@ -80,6 +79,13 @@ class DatabaseConnector{
 			System.out.println(e.getMessage());
 		}
 		return songs;
+	}
+	
+	public Playlist createPlaylist(String name) {
+		ArrayList<Song> songs = createSongs();
+		Playlist p = new Playlist(name);
+		p.addSongs(songs);
+		return p;
 	}
 	
 	// Insertion functions
@@ -211,7 +217,7 @@ class DatabaseConnector{
 		if (!connected) return null;
 		try {
 			// Prepare
-			ps = conn.prepareStatement(Constants.GET_SONGS_BY_GENRE);
+			ps = conn.prepareStatement(Constants.GET_SONGS_BY_YEAR);
 			ps.setShort(1, year);
 			// Execute
 			rs = ps.executeQuery();
@@ -223,7 +229,37 @@ class DatabaseConnector{
 	}
 	
 	public Playlist getPlaylist(String name) {
-		
+		if (!connected) return null;
+		try {
+			// Prepare
+			ps = conn.prepareStatement(Constants.GET_PLAYLIST);
+			ps.setString(1, name);
+			// Execute
+			rs = ps.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		// Format
+		return createPlaylist(name);
+	}
+	
+	public boolean authenticate(String username, String passhash) {
+		System.out.println(username + ", " + passhash);
+		if (!connected) return false;
+		try {
+			// Prepare
+			ps = conn.prepareStatement("SELECT COUNT(*) FROM Users");
+//			ps = conn.prepareStatement(Constants.AUTHENTICATE);
+//			ps.setString(1, username);
+//			ps.setString(2, passhash);
+			// Execute
+			rs = ps.executeQuery();
+			System.out.println(rs.getInt(1));
+		} catch (SQLException e) {
+			System.out.println("Error authenticating");
+			System.out.println(e.getMessage());
+		}
+		return false;
 	}
 }
 

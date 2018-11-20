@@ -12,7 +12,13 @@ class Constants {
 	public static final String GET_SONGS_BY_ARTIST = "SELECT * FROM Songs WHERE artist=?";
 	public static final String GET_SONGS_BY_GENRE = "SELECT * FROM Songs WHERE genre=?";
 	public static final String GET_SONGS_BY_YEAR = "SELECT * FROM Songs WHERE yearOfRelease=?";
-	public static final String GET_PLAYLIST = "SELECT * FROM Playlists WHERE playlistName=?";
+	public static final String GET_PLAYLIST = "SELECT Songs.filePath, Songs.imageFilePath, Songs.artist, "
+											+ "Songs.artist, Songs.album, Songs.songName, Songs.yearOfRelease, "
+											+ "Songs.genre "
+											+ "FROM Songs "
+											+ "INNER JOIN Playlists "
+											+ "ON (Songs.songID = Playlists.songID AND playlistName=?";
+	public static final String AUTHENTICATE = "SELECT COUNT(*) FROM Users WHERE (username=? AND passhash=?)";
 	// Update Statements
 	public static final String UPDATE_RATING = "UPDATE Ratings SET rating = ? WHERE (userID=? AND songID=?)";
 	// Deletion Statements
