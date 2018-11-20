@@ -33,37 +33,58 @@ public class FFT {
 
 public static void main(String[] args)
 {
-	test one = new test();
-	/*one.analyze("Down the Road.mp3");
-	one.analyze("Colder Weather.mp3");
-	one.analyze("Demons.mp3");
-	one.analyze("Lance s Song.mp3");
-	one.analyze("One Step Up.mp3");*/
-	/*System.out.println(one.compare("Jolene", "Ocean"));
-	System.out.println(one.compare("Jolene", "Sthlm Sunset"));
-	System.out.println(one.compare("Jolene", "Demons"));
-	System.out.println(one.compare("Jolene", "Colder Weather"));
-	System.out.println(one.compare("Jolene", "One Step Up"));
-	System.out.println(one.compare("Jolene", "Down the Road"));
-	System.out.println(one.compare("Jolene", "Lance's Song"));
-	*/
-	//System.out.println(one.compare("Jolene", "Ocean"));
-	//System.out.println(one.compare("Sthlm Sunset", "Ocean"));
-	/*File dir = new File("media/");
-	File[] directoryListing = dir.listFiles();
-	if(directoryListing != null)
-	{
-		for(File child: directoryListing)
-		{
-			one.analyze("media/" + child.getName());
-		}
-	}*/
-	ArrayList<String> playlist = null;
-	playlist = one.PlaylistBuilder("Ooh! My Head");
-	for(int i = 0; i<playlist.size(); i++)
-	{
-		System.out.println(playlist.get(i));
-	}
+	System.out.println("Beginning test");
+	
+	DatabaseConnector dbc = new DatabaseConnector();
+	short year = 2018;
+	dbc.connect();
+	// Adding
+	dbc.addUser("test", "test", "test", "test", "test");
+	dbc.addUser("test1", "test1", "test2", "test3", "test5");
+	dbc.addSong("test", "test", "test", "test", "test", year, "test");
+	dbc.addSongToPlaylist(1, 1, "test");
+	// Getting
+	System.out.println(dbc.authenticate("test", "test"));
+	dbc.close();
+	
+	System.out.println("End of test");
+	
+	
+	
+	
+	
+	
+//	test one = new test();
+//	/*one.analyze("Down the Road.mp3");
+//	one.analyze("Colder Weather.mp3");
+//	one.analyze("Demons.mp3");
+//	one.analyze("Lance s Song.mp3");
+//	one.analyze("One Step Up.mp3");*/
+//	/*System.out.println(one.compare("Jolene", "Ocean"));
+//	System.out.println(one.compare("Jolene", "Sthlm Sunset"));
+//	System.out.println(one.compare("Jolene", "Demons"));
+//	System.out.println(one.compare("Jolene", "Colder Weather"));
+//	System.out.println(one.compare("Jolene", "One Step Up"));
+//	System.out.println(one.compare("Jolene", "Down the Road"));
+//	System.out.println(one.compare("Jolene", "Lance's Song"));
+//	*/
+//	//System.out.println(one.compare("Jolene", "Ocean"));
+//	//System.out.println(one.compare("Sthlm Sunset", "Ocean"));
+//	/*File dir = new File("media/");
+//	File[] directoryListing = dir.listFiles();
+//	if(directoryListing != null)
+//	{
+//		for(File child: directoryListing)
+//		{
+//			one.analyze("media/" + child.getName());
+//		}
+//	}*/
+//	ArrayList<String> playlist = null;
+//	playlist = one.PlaylistBuilder("Ooh! My Head");
+//	for(int i = 0; i<playlist.size(); i++)
+//	{
+//		System.out.println(playlist.get(i));
+//	}
 	
 }
 
