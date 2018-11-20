@@ -7,13 +7,12 @@ class Constants {
 	public static final String ADD_SONG = "INSERT INTO Songs (filePath, imageFilePath, artist, album, songName, yearofRelease, genre) VALUES(?,?,?,?,?,?,?)";
 	public static final String ADD_TO_PLAYLIST  = "INSERT INTO Playlists (playlistName, userID, songID) VALUES (?,?,?)";
 	// Selection statements
+	public static final String GET_SONG_BY_ID = "SELECT * FROM Songs WHERE songID=?";
 	public static final String GET_SONG_BY_NAME = "SELECT * FROM Songs WHERE songName=?";
-	public static final String GET_SONG_BY_ARTIST = "SELECT * FROM Songs WHERE artist=?";
-	public static final String GET_SONG_BY_GENRE = "SELECT * FROM Songs WHERE genre=?";
-	public static final String GET_SONG_BY_YEAR = "SELECT * FROM Songs WHERE yearOfRelease=?";
+	public static final String GET_SONGS_BY_ARTIST = "SELECT * FROM Songs WHERE artist=?";
+	public static final String GET_SONGS_BY_GENRE = "SELECT * FROM Songs WHERE genre=?";
+	public static final String GET_SONGS_BY_YEAR = "SELECT * FROM Songs WHERE yearOfRelease=?";
 	public static final String GET_PLAYLIST = "SELECT * FROM Playlists WHERE playlistName=?";
-	public static final String GET_GENRE = "SELECT * FROM Songs WHERE genre=?";
-	public static final String GET_METADATA = "SELECT * FROM Metadata";
 	// Update Statements
 	public static final String UPDATE_RATING = "UPDATE Ratings SET rating = ? WHERE (userID=? AND songID=?)";
 	// Deletion Statements
