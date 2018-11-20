@@ -80,6 +80,7 @@ public static void main(String[] args)
 	{
 		System.out.println(playlist.get(i));
 	}*/
+	
 }
 
 }
@@ -87,6 +88,7 @@ public static void main(String[] args)
 class SongAnalyzer {
 public void analyze(String filename)
 {
+	DatabaseConnector db = new DatabaseConnector();
   try {
 	  //code lines 93-130 were derived from the website: http://www.javazoom.net/mp3spi/documents.html
 	  //the developers behind this website used the java sound api class to develop an mp3 reading and analysis class
@@ -96,7 +98,7 @@ public void analyze(String filename)
 	Statement st = null;
 	ResultSet rs = null;
 	Class.forName("com.mysql.jdbc.Driver"); //this is could be done in a config file
-	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/PROJECT?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
+	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/songsDB?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
 	
 	
 	
@@ -113,12 +115,6 @@ public void analyze(String filename)
                                                                                   baseFormat.getSampleRate(),
                                                                                   false);
     din = AudioSystem.getAudioInputStream(decodedFormat, in);
-    // Play now.
-    int k = 0;
-    int l = 0;
-    int count = 0;
-    
-    //System.out.println(din.available() + " "+AudioSystem.getAudioFileFormat(file).getFrameLength() + " " + decodedFormat.getFrameSize() + " " + decodedFormat.getSampleSizeInBits() );
     AudioFileFormat baseFileFormat = null;
     AudioFormat baseeFormat = null;
     baseFileFormat = AudioSystem.getAudioFileFormat(file);
@@ -141,16 +137,17 @@ public void analyze(String filename)
         key = "album";
         album = (String) properties.get(key);
         //System.out.println((String)properties.get("mp3.id3tag.genre"));
-      PreparedStatement p = conn.prepareStatement("INSERT INTO song_details(title, artist, album, genre) VALUES (?,?,?, 'rock')");
+      /*PreparedStatement p = conn.prepareStatement("INSERT INTO song_details(title, artist, album, genre) VALUES (?,?,?, 'rock')");
         p.setString(1, title);
         p.setString(2, author);
         p.setString(3, album);
-        p.executeUpdate();
+        p.executeUpdate();*/
+        db.addSong(filename, filename, author, album, title, (short) 0, "country");
         //ps3 = conn.prepareStatement("INSERT INTO event_table(Event_name, userID, Event_time, Event_Date, uniqueID) VALUES (?,?,?,?,?)");
         
         
     }
-    //end properities
+    //end properties
     //****************************
     
     
@@ -174,7 +171,7 @@ public void analyze(String filename)
      * 
      * Then in the compare method below you will see another explanation of how the MFCC's are used to comapre the songs. 
      */
-    PreparedStatement p0 = conn.prepareStatement("SELECT songID FROM song_details WHERE title=?");
+    PreparedStatement p0 = conn.prepareStatement("SELECT songID FROM songs WHERE title=?");
 
     p0.setString(1, title);
     
@@ -348,9 +345,9 @@ public double compare(String name1, String name2)
 		ResultSet count1 = null;
 		ResultSet count2 = null;
 		Class.forName("com.mysql.jdbc.Driver"); //this is could be done in a config file
-		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/PROJECT?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
-		PreparedStatement p0 = conn.prepareStatement("SELECT songID FROM song_details WHERE title=?");
-		PreparedStatement p00 = conn.prepareStatement("SELECT songID FROM song_details WHERE title=?");
+		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/songsDB?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
+		PreparedStatement p0 = conn.prepareStatement("SELECT songID FROM songs WHERE title=?");
+		PreparedStatement p00 = conn.prepareStatement("SELECT songID FROM songs WHERE title=?");
 		p0.setString(1, name1);
 		rs = p0.executeQuery();
 		p00.setString(1, name2);
@@ -360,8 +357,8 @@ public double compare(String name1, String name2)
 		if(rs.next()) p1.setInt(1, rs.getInt(1));
 		if(rs2.next()) p2.setInt(1, rs2.getInt("songID"));
 		
-		PreparedStatement p3 = conn.prepareStatement("SELECT count(*) From project.frames where songID=?");
-		PreparedStatement p33 = conn.prepareStatement("SELECT count(*) From project.frames where songID=?");
+		PreparedStatement p3 = conn.prepareStatement("SELECT count(*) From songsDB.frames where songID=?");
+		PreparedStatement p33 = conn.prepareStatement("SELECT count(*) From songsDB.frames where songID=?");
 		p3.setInt(1, rs.getInt(1));
 		count1 = p3.executeQuery();
 		p33.setInt(1, rs2.getInt("songID"));
@@ -519,6 +516,10 @@ public double compare(String name1, String name2)
  */
 public ArrayList<String> PlaylistBuilder(String songname)
 {
+	if(songname == null)
+	{
+		return null;
+	}
 	ArrayList< String> playlist = new ArrayList<String>();
 	ArrayList<Double> range = new ArrayList<Double>();
 	ArrayList< String> playlist_final = new ArrayList<String>();
@@ -532,9 +533,9 @@ public ArrayList<String> PlaylistBuilder(String songname)
 	ResultSet count2 = null;
 	try {
 	Class.forName("com.mysql.jdbc.Driver"); 
-	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/PROJECT?user=root&password=root&useSSL=false");	
-	PreparedStatement p0 = conn.prepareStatement("SELECT genre FROM song_details WHERE title=?");
-	PreparedStatement p00 = conn.prepareStatement("SELECT title FROM song_details WHERE title !=? AND genre=?");
+	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/songsDB?user=root&password=root&useSSL=false");	
+	PreparedStatement p0 = conn.prepareStatement("SELECT genre FROM songs WHERE title=?");
+	PreparedStatement p00 = conn.prepareStatement("SELECT title FROM songs WHERE title !=? AND genre=?");
 	//PreparedStatement p00 = conn.prepareStatement("SELECT title FROM song_details WHERE title !=?");
 	
 	p0.setString(1, songname);
@@ -570,13 +571,22 @@ public ArrayList<String> PlaylistBuilder(String songname)
 		}
 	}
 	//System.out.println("555555555555555555555555");
+	DatabaseConnector db = new DatabaseConnector();
+	PreparedStatement p000 = conn.prepareStatement("SELECT songID FROM songs WHERE songName=?");
+	p000.setString(1, songname);
+	ResultSet finall = p000.executeQuery();
 	for(int i = 0; i < 16; i++)
 	{
 		if(playlist.get(i) == null) {break;}
 		playlist_final.add(playlist.get(i));
+		p000.setString(1, playlist.get(i));
+		finall = p000.executeQuery();
+		finall.next();
+		db.addSongToPlaylist(0, finall.getInt(1) , playlist.get(i));
 		//System.out.println(range.get(i));
 	}
 	
+	//add this playlist to the database, key=song name requested, val= playlist array
 	
 	
 	return playlist_final;
