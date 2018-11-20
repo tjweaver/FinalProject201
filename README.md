@@ -11,7 +11,7 @@ https://github.com/einsteinx2/isub3
 Readme
 
 Song analysis:
-Our project at its current state is divided into the front and back end parts working but not connected yet. In order to run the code you must unzip the entire music library and run the SongAnalyzer.analyze() method on the entire library in order to populate the database of the MFC coefficients. The runtime of this function on the whole library which is necessary will take approximately 2 hours but after that it will never need to be run again. Song analysis is very time consuming and complex so this 2 hours is not surprising. Then also please run the Playlist builder method to build all the necessary playlists and populate the Look up table. 
+Our project at its current state is divided into the front and back end parts working but not connected yet. In order to run the code you must unzip the entire music library and run the SongAnalyzer.analyze() method on the entire library in order to populate the database of the MFC coefficients. The runtime of this function on the whole library which is necessary will take approximately 2 hours but after that it will never need to be run again. Song analysis is very time consuming and complex so this 2 hours is not surprising. Then also please run the Playlist builder method to build all the necessary playlists and populate the Look up table.
 	The front end app works well and the backend song analysis works. the last thing needed is to connect these two portions over a server like heroku and have a full functioning app.
 	
 Database:
@@ -21,3 +21,6 @@ The only bug right now is that the authentication is working, and I've tried a v
 
 Servlets:
 The servlets in our code mainly act as an intermediary between the database and the user. The main role of the servlets are to manage authentication and non-authenticated requests and to parse user requests and send them to the database abstraction. The servlets will receive JSON request bodies and respond with JSON. The authentication is done by checking the password associated with the username that was submitted with the password from the front end as middleware for autheticated endpoints, otherwise no checks are done.
+
+Front-End:
+For the front end the provided LoginViewController is completed. The rest of the main views are Explore, Search, and Profile. The general layout code is complete and awaiting the integration with the backend. Once the ExploreViewController is complete and the multithreading works, it can be dropped into the main Xcode project. SearchViewController is also mostly finished, SearchResultsViewController needs the most work as it relies primarily on the connection to the backend. Music streaming via MusicStreamViewController is in progress.
