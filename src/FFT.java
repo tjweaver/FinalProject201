@@ -1,3 +1,9 @@
+/*
+ * Author: Thomas Weaver
+ *
+ */
+
+
 import java.io.File;
 
 import java.io.FileWriter;
@@ -25,6 +31,11 @@ import org.jtransforms.dct.DoubleDCT_1D;
 import org.jtransforms.fft.DoubleFFT_1D;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 
+import com.dtw.DTW;
+import com.dtw.FastDTW;
+import com.timeseries.TimeSeries;
+import com.util.EuclideanDistance;
+
 
 
 
@@ -33,7 +44,7 @@ public class FFT {
 
 public static void main(String[] args)
 {
-	test one = new test();
+	SongAnalyzer one = new SongAnalyzer();
 	/*one.analyze("Down the Road.mp3");
 	one.analyze("Colder Weather.mp3");
 	one.analyze("Demons.mp3");
@@ -58,26 +69,35 @@ public static void main(String[] args)
 			one.analyze("media/" + child.getName());
 		}
 	}*/
-	ArrayList<String> playlist = null;
-	playlist = one.PlaylistBuilder("Ooh! My Head");
+	
+	//one.analyze("media/Jolene.mp3");
+	
+	
+	
+	/*ArrayList<String> playlist = null;
+	playlist = one.PlaylistBuilder("Gone");
 	for(int i = 0; i<playlist.size(); i++)
 	{
 		System.out.println(playlist.get(i));
-	}
+	}*/
 	
 }
 
 }
 
-class test {
+class SongAnalyzer {
 public void analyze(String filename)
 {
   try {
+	  //code lines 93-130 were derived from the website: http://www.javazoom.net/mp3spi/documents.html
+	  //the developers behind this website used the java sound api class to develop an mp3 reading and analysis class
+	  //which was very helpful for converting the mp3's to raw data. 
+	  
 	Connection conn = null;
 	Statement st = null;
 	ResultSet rs = null;
 	Class.forName("com.mysql.jdbc.Driver"); //this is could be done in a config file
-	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/project?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
+	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/PROJECT?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
 	
 	
 	
@@ -116,12 +136,13 @@ public void analyze(String filename)
         Map properties = ((TAudioFileFormat)baseFileFormat).properties();
         String key = "title"; 
         title = (String) properties.get(key);
+        System.out.println(title);
         key = "author";
         author =(String) properties.get(key);
         key = "album";
         album = (String) properties.get(key);
-        
-        PreparedStatement p = conn.prepareStatement("INSERT INTO song_details(title, artist, album) VALUES (?,?,?)");
+        //System.out.println((String)properties.get("mp3.id3tag.genre"));
+      PreparedStatement p = conn.prepareStatement("INSERT INTO song_details(title, artist, album, genre) VALUES (?,?,?, 'rock')");
         p.setString(1, title);
         p.setString(2, author);
         p.setString(3, album);
@@ -142,6 +163,18 @@ public void analyze(String filename)
     System.out.println("Beginning: " + title);
     //*************************************************************
     //Begin MFCC analysis
+    /*
+     * the code below is how each song is analyzed in the music library under the media folder. 
+     * the exact media folder will not be available to you but the music server which will have all the music
+     * we used will be provided in the readme. use the login credentials there to view the music. It is a combination of
+     * edm, country and rock. 3 pretty separate genres.
+     * 
+     * The music analysis method used here is similar to what is used in automated speech recognition. it is
+     * called Mel frequency cepstrum coefficient analysis. The tutorial I used on how to implement the algorithm
+     * can be found at this url: http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/
+     * 
+     * Then in the compare method below you will see another explanation of how the MFCC's are used to comapre the songs. 
+     */
     PreparedStatement p0 = conn.prepareStatement("SELECT songID FROM song_details WHERE title=?");
 
     p0.setString(1, title);
@@ -149,10 +182,8 @@ public void analyze(String filename)
     rs = p0.executeQuery();
     		//ps = conn.prepareStatement("SELECT e.uniqueID FROM event_table e WHERE e.uniqueID=? AND e.userID=? "); //check if there is an event already with that unique ID
     PreparedStatement p1 = conn.prepareStatement("INSERT INTO frames(songID, co1, co2, co3, co4, co5, co6, co7, co8, co9, co10, co11, co12) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    if(rs.next()) {
-    	
+    if(rs.next()) {    	
     	p1.setString(1, rs.getString("songID"));
-    	
     }
     
     byte[] data = new byte[2*1102];
@@ -179,17 +210,7 @@ public void analyze(String filename)
     	freq[i] = (double) (700*(Math.exp(mels[i]/1125) - 1));
     	//System.out.println(freq[i]);
     }
-    /*
-     * bin = numpy.floor((nfft+1)*mel2hz(melpoints)/samplerate)
 
-    fbank = numpy.zeros([nfilt,nfft//2+1])
-    for j in range(0,nfilt):
-        for i in range(int(bin[j]), int(bin[j+1])):
-            fbank[j,i] = (i - bin[j]) / (bin[j+1]-bin[j])
-        for i in range(int(bin[j+1]), int(bin[j+2])):
-			fbank[j,i] = (bin[j+2]-i) / (bin[j+2]-bin[j+1])
-     * 
-     */
     double[] fft_bin = new double[28];
     double[][] filterBanks = new double[28][N];
     for(int i = 0; i < fft_bin.length; i++)
@@ -215,7 +236,8 @@ public void analyze(String filename)
     
     
     //FileWriter write = new FileWriter("output.txt");
-    
+   
+
     while (nBytesRead != -1)
     {
         nBytesRead = din.read(data, 0, data.length);
@@ -223,7 +245,7 @@ public void analyze(String filename)
         {
         	datadouble[i] = (double)(data[i]);
         }
-        if (nBytesRead != -1)
+        if (nBytesRead != -1 )
         {
         	FFT.realForwardFull(datadouble);
         	for(int i = 0; i<datadouble.length; i++)
@@ -261,14 +283,13 @@ public void analyze(String filename)
     	    for(int j = 0; j < 12; j++) 
     	    {
     	    	p1.setDouble(j+2, energy[j]);
-    	    
     	    }
     	    p1.executeUpdate();
     	    
 
 
         }
-         
+        
     }
     
     
@@ -306,7 +327,15 @@ public void analyze(String filename)
 
 
 
-
+/*
+ * From the comments in the analyis method, now we are at the compare mehtod which will comapre two songs. 
+ * This method utilizes the fast dynamic time warping algorithm to compare the mel frequency coefficients. 
+ * The point of the dynamic time warping is to match two songs which may have similarities that occur at different 
+ * speeds and such. It is used very widely in speech recognition which is similar to this application. Although
+ * speech recognition is used for exact matches, we relax the constraints on the distances returned in order to build
+ * a playlist of different but simliar songs to the one requested. After all, that is the purpose of a radio station/playlist
+ * 
+ */
 public double compare(String name1, String name2)
 {
 	double sum = 0;
@@ -320,7 +349,7 @@ public double compare(String name1, String name2)
 		ResultSet count1 = null;
 		ResultSet count2 = null;
 		Class.forName("com.mysql.jdbc.Driver"); //this is could be done in a config file
-		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/project?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
+		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/PROJECT?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
 		PreparedStatement p0 = conn.prepareStatement("SELECT songID FROM song_details WHERE title=?");
 		PreparedStatement p00 = conn.prepareStatement("SELECT songID FROM song_details WHERE title=?");
 		p0.setString(1, name1);
@@ -334,7 +363,7 @@ public double compare(String name1, String name2)
 		
 		PreparedStatement p3 = conn.prepareStatement("SELECT count(*) From project.frames where songID=?");
 		PreparedStatement p33 = conn.prepareStatement("SELECT count(*) From project.frames where songID=?");
-		p3.setInt(1, rs.getInt("songID"));
+		p3.setInt(1, rs.getInt(1));
 		count1 = p3.executeQuery();
 		p33.setInt(1, rs2.getInt("songID"));
 		count2 = p33.executeQuery();
@@ -343,10 +372,39 @@ public double compare(String name1, String name2)
 		double[][] matrix2 = null;
 		frames1 = p1.executeQuery();
 		frames2 = p2.executeQuery();
-		if(count1.next())  matrix1 = new double[count1.getInt(1)][12];
-		if(count2.next()) matrix2 = new double[count2.getInt(1)][12];
+		//if(count1.next())  matrix1 = new double[count1.getInt(1)][12];
+		//if(count2.next()) matrix2 = new double[count2.getInt(1)][12];
+		if(count1.next() && count2.next()) {
+			if(count1.getInt(1) > count2.getInt(1))
+			{
+				 matrix1 = new double[count1.getInt(1)][12];
+				 matrix2 = new double[count1.getInt(1)][12];
+				 for(int i = 0; i < matrix1.length; i++)
+				 {
+					 for (int j = 0; j < 12; j++)
+					 {
+						 matrix1[i][j] = 0;
+						 matrix2[i][j] = 0;
+					 }
+				 }
+			}
+			else
+			{
+				 matrix1 = new double[count2.getInt(1)][12];
+				 matrix2 = new double[count2.getInt(1)][12];
+				 for(int i = 0; i < matrix1.length; i++)
+				 {
+					 for (int j = 0; j < 12; j++)
+					 {
+						 matrix1[i][j] = 0;
+						 matrix2[i][j] = 0;
+					 }
+				 }
+			}
+			
+		}
 		
-		
+
 		if(frames1.next()) {
 			for(int i = 0; i<count1.getInt(1)-1 ; i++)
 			{
@@ -370,17 +428,17 @@ public double compare(String name1, String name2)
 		}
 		//matrix comparison going to happen next
 
-		
-		if(count1.getInt(1) <= count2.getInt(1))
-		{
-			for(int i = 0; i < count1.getInt(1); i++)
+		/*
+	//	if(count1.getInt(1) <= count2.getInt(1))
+		//{
+			for(int i = 0; i < matrix1.length; i++)
 			{
 				for(int j = 0; j < 12; j++)
 				{
-					sum += Math.abs(matrix1[i][j] - matrix2[i][j]);
+					sum += (Math.abs(matrix1[i][j] - matrix2[i][j]))*(Math.abs(matrix1[i][j] - matrix2[i][j]));
 				}
 			}
-		}
+		//}
 		else
 		{
 			for(int i = 0; i < count2.getInt(1) ; i++)
@@ -391,6 +449,8 @@ public double compare(String name1, String name2)
 				}
 			}
 		}
+		
+		
 		return sum;
 	}catch (SQLException e) {
 		// TODO Auto-generated catch block
@@ -400,13 +460,64 @@ public double compare(String name1, String name2)
 		e.printStackTrace();
 	}
 	return sum;
+	*/
+	//**********************************************************************************
+	
+		/*
+		 * This code was derived direclty from the fast Dynamic time warping github: https://github.com/rmaestre/FastDTW
+		 * I'm using this library to do the dynamic time warping because their dynamic programming linear time implementation
+		 * of it is extremely efficient and well done. 
+		 *
+		 */
+	FastDTW dtw= new FastDTW();
+	
+	for(int i = 0; i < 12; i++)
+	{
+		
+	
+		double[] timeseries1 = new double[matrix1.length];
+		double[] timeseries2 = new double[matrix2.length];
+		for(int ii = 0; ii<matrix1.length; ii++)
+		{
+			timeseries1[ii] = matrix1[ii][i];
+		}
+		for(int ii = 0; ii<matrix2.length; ii++)
+		{
+			timeseries2[ii] = matrix2[ii][i];			
+		}
+		TimeSeries ts1 = new TimeSeries(timeseries1);
+		TimeSeries ts2 = new TimeSeries(timeseries2);
+		EuclideanDistance ed = new EuclideanDistance();
+		sum += FastDTW.getWarpDistBetween(ts1, ts2, ed);
+
+		
+	}			System.out.println("calculated: " +  sum);	
+	sum = sum/12;
+	return sum;
+	}catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	return sum;
+	
 	
 	
 }
 
 
 
-
+/*
+ * This method is pretty self explanatory. It uses the compare method above to build the playlist by comparing 
+ * songs which are in similar the similar genre to the song requested. A comparison threshold is put in place so that if
+ * a song cannot be matched to other songs within a certain threshold then no playlist will be built. 
+ * Also, this method will only be ran once to build playlists for all songs against all other songs in the respective 
+ * genres. 
+ * 
+ */
 public ArrayList<String> PlaylistBuilder(String songname)
 {
 	ArrayList< String> playlist = new ArrayList<String>();
@@ -421,10 +532,12 @@ public ArrayList<String> PlaylistBuilder(String songname)
 	ResultSet count1 = null;
 	ResultSet count2 = null;
 	try {
-	Class.forName("com.mysql.jdbc.Driver"); //this is could be done in a config file
-	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/project?user=root&password=root&useSSL=false");	//this is a URI uniform resource identifier
+	Class.forName("com.mysql.jdbc.Driver"); 
+	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/PROJECT?user=root&password=root&useSSL=false");	
 	PreparedStatement p0 = conn.prepareStatement("SELECT genre FROM song_details WHERE title=?");
 	PreparedStatement p00 = conn.prepareStatement("SELECT title FROM song_details WHERE title !=? AND genre=?");
+	//PreparedStatement p00 = conn.prepareStatement("SELECT title FROM song_details WHERE title !=?");
+	
 	p0.setString(1, songname);
 	p00.setString(1, songname);
 	rs = p0.executeQuery();
@@ -440,11 +553,7 @@ public ArrayList<String> PlaylistBuilder(String songname)
 		sum = 0;
 		
 	}
-	//sort the array in ascending order
-	/*for(int i = 0; i < playlist.size(); i++)
-	{
-		System.out.println(playlist.get(i) + ": " + range.get(i));
-	}*/
+
 	for(int i = 0; i < playlist.size(); i++)
 	{
 		for(int j = 0; j < playlist.size() -1; j++)
@@ -461,27 +570,19 @@ public ArrayList<String> PlaylistBuilder(String songname)
 			}
 		}
 	}
-	/*int median = playlist.size()/2;
-	for(int i = median; i < median + 6; i++)
+	//System.out.println("555555555555555555555555");
+	for(int i = 0; i < 16; i++)
 	{
+		if(playlist.get(i) == null) {break;}
 		playlist_final.add(playlist.get(i));
+		//System.out.println(range.get(i));
 	}
-	for(int i = median -6; i < median; i++)
-	{
-		playlist_final.add(playlist.get(i));
-	}*/
-	for(int i = 2; i < 14; i++)
-	{
-		playlist_final.add(playlist.get(i));
-	}
+	
+	
+	
 	return playlist_final;
 	
-	//sort the playlist
-	
-	
-	
-	
-	
+
 	
 	
 	}catch (SQLException e) {
