@@ -110,6 +110,10 @@ class Playlist {
 		this.name = name;
 	}
 	
+	public void addSongs(ArrayList<Song> songs) {
+		this.songs = songs;
+	}
+	
 	public void add(Song song) {
 		songs.add(song);
 	}
