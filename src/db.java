@@ -248,13 +248,11 @@ class DatabaseConnector{
 		if (!connected) return false;
 		try {
 			// Prepare
-			ps = conn.prepareStatement("SELECT COUNT(*) FROM Users");
-//			ps = conn.prepareStatement(Constants.AUTHENTICATE);
-//			ps.setString(1, username);
-//			ps.setString(2, passhash);
-			// Execute
+			ps = conn.prepareStatement("SELECT COUNT(*) AS total FROM Users");
+			System.out.println("Here");
 			rs = ps.executeQuery();
-			System.out.println(rs.getInt(1));
+			System.out.println("There");
+			System.out.println(rs.getInt("total"));
 		} catch (SQLException e) {
 			System.out.println("Error authenticating");
 			System.out.println(e.getMessage());
