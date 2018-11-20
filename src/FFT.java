@@ -80,7 +80,6 @@ public static void main(String[] args)
 	{
 		System.out.println(playlist.get(i));
 	}*/
-	
 }
 
 }
