@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class Main {
     
@@ -16,6 +17,8 @@ class Main {
     
     static var songTitleChosen = ""
     static var artistTitleChosen = ""
+    
+    static var searchAlbumArtHold = UIImage()
     
     func getGuestBool() -> Bool
     {
@@ -56,15 +59,35 @@ class Main {
         return Main.isPlaying
     }
     
-    func setArtistChosen()
+    func setArtistChosen(artist: String)
     {
-        
+        Main.artistTitleChosen = artist
     }
     
-    func setSongChosen()
+    func setSongChosen(song: String)
     {
-        
+        Main.songTitleChosen = song
     }
     
+    func getArtistChosen() -> String
+    {
+        return Main.artistTitleChosen
+    }
+    
+    func getSongChosen() -> String
+    {
+        return Main.songTitleChosen
+    }
+    
+    func setSearchAlbumArt(art: UIImage)
+    {
+        Main.searchAlbumArtHold = art
+    }
+    
+    func getSearchAlbumArt() -> UIImage
+    {
+        return Main.searchAlbumArtHold
+    }
+
     
 }

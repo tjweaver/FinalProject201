@@ -31,6 +31,17 @@ class AlbumTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let black = UIColor(red: 0, green: 0, blue: 0, alpha: 1.0)
+        let darkPurple = UIColor(red: 24/255.0, green: 18/255.0, blue: 97/255.0, alpha: 1.0)
+        let gradient = CAGradientLayer()
+        gradient.colors = [black.cgColor, darkPurple.cgColor]
+        gradient.locations = [0.0, 0.75, 1.0]
+        gradient.startPoint = CGPoint(x: 0.0, y: 0.0)
+        gradient.endPoint = CGPoint(x: 0.0, y: 1.0)
+        gradient.frame = tableView.bounds
+        let backgroundView = UIView(frame: tableView.bounds)
+        backgroundView.layer.insertSublayer(gradient, at: 0)
+        tableView.backgroundView = backgroundView
         tableView.dataSource = dataSource
 
     }
@@ -39,9 +50,9 @@ class AlbumTableViewController: UITableViewController {
         if segue.identifier == "songSelectionSegue" {
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
                 let selectedAlbum = dataSource.album(at: selectedIndexPath)
-                print(selectedAlbum.artworkUrl)
-
+                
                 let albumDetailController = segue.destination as! AlbumDetailViewController
+                albumDetailController.URLHold = selectedAlbum.artworkUrl
                 albumDetailController.artworkImage = selectedAlbum.artwork
                 client.lookupAlbum(withId: selectedAlbum.id) { album, error in
                     albumDetailController.album = album

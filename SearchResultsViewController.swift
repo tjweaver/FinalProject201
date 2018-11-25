@@ -16,7 +16,9 @@ class SearchResultsViewController: UIViewController, UITableViewDelegate, UITabl
     var songName : String = ""
     private let myArray: NSArray = ["Song 1","Song 2","Song 3"]
     private var myTableView: UITableView!
-    
+    var albumView = UIImageView()
+    var albumImageToDisplay = UIImage()
+
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -61,9 +63,8 @@ class SearchResultsViewController: UIViewController, UITableViewDelegate, UITabl
         querySongTitle.font = ifont
         self.view.addSubview(querySongTitle)
         
-        let defaultAlbum = "defaultAlbum.png"
-        let albumImage = UIImage(named: defaultAlbum)
-        let albumView = UIImageView(image: albumImage!)
+        //let defaultAlbum = "defaultAlbum.png"
+        albumView = UIImageView(image: albumImageToDisplay)
         albumView.frame = CGRect(x: 0, y: 150, width: 120, height: 120)
         view.addSubview(albumView)
         albumView.center.x = view.center.x

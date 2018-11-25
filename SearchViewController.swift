@@ -90,17 +90,19 @@ struct TrackList : Decodable {
 class SearchViewController: UIViewController, UITextFieldDelegate {
 
     // chainable animator
-    let searchButton = UIButton(frame: CGRect(x: 30, y: 450, width: 100, height: 100))
-    let artistNameField =  UITextField(frame: CGRect(x: 30, y: 300, width: 300, height: 40))
-    let songNameField =  UITextField(frame: CGRect(x: 30, y: 360, width: 300, height: 40))
+    let searchButton = UIButton(frame: CGRect(x: 30, y: 440, width: 100, height: 100))
+    //let artistNameField =  UITextField(frame: CGRect(x: 30, y: 300, width: 300, height: 40))
+    //let songNameField =  UITextField(frame: CGRect(x: 30, y: 360, width: 300, height: 40))
     let searchTitle = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
     var pulsatingLayer: CAShapeLayer!
     var artistName : String = ""
     var songName : String = ""
     let client = ItunesAPIClient()
     var albumView = UIImageView()
-    let selectButton = UIButton(frame: CGRect(x: 30, y: 550, width: 100, height: 100))
-    var songChosenByUser = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
+    let selectButton = UIButton(frame: CGRect(x: 30, y: 540, width: 100, height: 100))
+    
+    var songChosenByUser = UILabel(frame: CGRect(x: 0, y: 0, width: 230, height: 21))
+    var artistChosenByUser = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
 
     
     override func viewDidLoad() {
@@ -142,8 +144,32 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         searchTitle.textColor = UIColor.white
         let sfont = UIFont(name: "HelveticaNeue-Bold", size: 20.0)!
         searchTitle.font = sfont
+        //self.view.addSubview(searchTitle)
 
-        self.view.addSubview(searchTitle)
+
+        
+        artistChosenByUser.center.x = self.view.center.x
+        artistChosenByUser.center.y = 120
+        artistChosenByUser.textAlignment = .center
+        artistChosenByUser.text = "Artist"
+        artistChosenByUser.textColor = UIColor.white
+        artistChosenByUser.font = sfont
+        self.view.addSubview(artistChosenByUser)
+
+        songChosenByUser.center.x = self.view.center.x
+        songChosenByUser.center.y = 370
+        songChosenByUser.textAlignment = .center
+        songChosenByUser.text = "Song"
+        songChosenByUser.textColor = UIColor.white
+        let ifont = UIFont(name: "HelveticaNeue-MediumItalic", size: 18.0)!
+        songChosenByUser.font = ifont
+        self.view.addSubview(songChosenByUser)
+
+        
+        
+        
+        
+        
         
         // Search Button
         // Push to send query to database
@@ -159,6 +185,7 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         
         
         // Artist name
+        /*
         artistNameField.attributedPlaceholder = NSAttributedString(string: "Artist Name",
                                                                      attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
         artistNameField.textColor = UIColor.white
@@ -174,19 +201,21 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         artistNameField.keyboardAppearance = UIKeyboardAppearance.dark;
         artistNameField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
 
-        self.view.addSubview(artistNameField)
-        
+        self.view.addSubview(artistNameField)*/
+        /*
         let artistBorder = CALayer()
         let width = CGFloat(2.0)
         artistBorder.borderColor = UIColor.lightGray.cgColor
+        
         artistBorder.frame = CGRect(x: 0, y: artistNameField.frame.size.height - width, width: artistNameField.frame.size.width, height: artistNameField.frame.size.height)
         
         artistBorder.borderWidth = width
         artistNameField.layer.addSublayer(artistBorder)
-        artistNameField.layer.masksToBounds = true
+        artistNameField.layer.masksToBounds = true*/
         
         
         // Song name
+        /*
         songNameField.attributedPlaceholder = NSAttributedString(string: "Song Name",
                                                                    attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
         songNameField.textColor = UIColor.white
@@ -209,12 +238,13 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         
         songBorder.borderWidth = width
         songNameField.layer.addSublayer(songBorder)
-        songNameField.layer.masksToBounds = true
+        songNameField.layer.masksToBounds = true*/
 
         let defaultAlbum = "defaultAlbum.png"
         let albumImage = UIImage(named: defaultAlbum)
         albumView = UIImageView(image: albumImage!)
-        albumView.frame = CGRect(x: 0, y: 150, width: 120, height: 120)
+        Main().setSearchAlbumArt(art: albumImage!)
+        albumView.frame = CGRect(x: 0, y: 150, width: 190, height: 190)
         view.addSubview(albumView)
         albumView.center.x = view.center.x
         pulsatingLayer.position = CGPoint(x:view.center.x,y:searchButton.center.y)
@@ -235,6 +265,7 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
     
     @objc func textFieldDidChange(_ textField: UITextField) {
         print(textField.text!)
+        /*
         var jsonURLString = "http://itunes.apple.com/search?term="
         let artistTerm = artistNameField.text!
         let artistSearch = artistTerm.replacingOccurrences(of: " ", with: "+")
@@ -270,11 +301,33 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
             
             
             }.resume()
+ */
     }
     
     
     override func viewDidAppear(_ animated: Bool) {
         animatePuslatingLayer()
+        
+        if(Main().getArtistChosen().isEmpty == true)
+        {
+            artistChosenByUser.text = "Artist"
+        }
+        else
+        {
+            artistChosenByUser.text = Main().getArtistChosen()
+        }
+        
+        if(Main().getSongChosen().isEmpty == true)
+        {
+            songChosenByUser.text = "Song"
+        }
+        else
+        {
+            songChosenByUser.text = Main().getSongChosen()
+        }
+        
+        albumView.image = Main().getSearchAlbumArt()
+        
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -283,8 +336,8 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
     
     @objc func queryAction(sender: UIButton!) {
         print("Search query")
-        artistName = artistNameField.text ?? "Young the Giant"
-        songName = songNameField.text ?? "My Body"
+        artistName = artistChosenByUser.text ?? "Young the Giant"
+        songName = songChosenByUser.text ?? "My Body"
         if(artistName.isEmpty == true || songName.isEmpty == true)
         {
             artistName = "Young the Giant"
@@ -293,8 +346,14 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         print("artist: "+artistName)
         print("song: "+songName)
         self.performSegue(withIdentifier: "SearchSegue", sender: self)
-        artistNameField.text = "";
-        songNameField.text = "";
+        artistChosenByUser.text = "Artist";
+        songChosenByUser.text = "Song";
+        Main().setArtistChosen(artist: "")
+        Main().setSongChosen(song: "")
+        let defaultAlbum = "defaultAlbum.png"
+        let albumImage = UIImage(named: defaultAlbum)
+        Main().setSearchAlbumArt(art: albumImage!)
+        albumView.image = Main().getSearchAlbumArt()
     }
     
     @objc func selectSongAction(sender: UIButton!) {
@@ -346,6 +405,7 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
             
             targetController.songName = songToSend
             targetController.artistName = artistToSend
+            targetController.albumImageToDisplay = self.albumView.image!
         }
         else if segue.identifier == "SelectSong" {
             let destinationVC = segue.destination as! UINavigationController
