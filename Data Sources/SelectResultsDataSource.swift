@@ -32,6 +32,8 @@ class SelectResultsDataSource: NSObject, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ResultCell", for: indexPath)
         let artist = data[indexPath.row]
         cell.textLabel?.text = artist.name
+        cell.textLabel?.textColor = UIColor.white
+        cell.backgroundColor = UIColor.clear
         //cell.textLabel?.textColor = UIColor.white
         return cell
     }

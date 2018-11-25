@@ -32,8 +32,19 @@ class AlbumDetailDataSource: NSObject, UITableViewDataSource {
         
         cell.songTitleLabel.text = viewModel.title
         cell.songRuntimeLabel.text = viewModel.runtime
+        cell.backgroundColor = UIColor.clear
+        cell.songTitleLabel.textColor = UIColor.white
         
+        let bgColorView = UIView()
+        let bgColor = UIColor(red: 73/255.0, green: 22/255.0, blue: 181/255.0, alpha: 1.0)
+        bgColorView.backgroundColor = bgColor
+        cell.selectedBackgroundView = bgColorView
+
         return cell
+    }
+    
+    func song(at indexPath: IndexPath) -> Song {
+        return songs[indexPath.row]
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
