@@ -37,7 +37,9 @@ class AlbumListDataSource: NSObject, UITableViewDataSource {
         
         albumCell.configure(with: viewModel)
         albumCell.accessoryType = .disclosureIndicator
-        
+        albumCell.backgroundColor = UIColor.clear
+        albumCell.albumTitle.textColor = UIColor.white
+
         if album.artworkState == .placeholder {
             downloadArtworkForAlbum(album, atIndexPath: indexPath)
         }
