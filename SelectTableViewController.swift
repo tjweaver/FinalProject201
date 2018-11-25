@@ -16,7 +16,19 @@ class SelectTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        let black = UIColor(red: 0, green: 0, blue: 0, alpha: 1.0)
+        let darkPurple = UIColor(red: 24/255.0, green: 18/255.0, blue: 97/255.0, alpha: 1.0)
+        let gradient = CAGradientLayer()
+        gradient.colors = [black.cgColor, darkPurple.cgColor]
+        gradient.locations = [0.0, 0.75, 1.0]
+        gradient.startPoint = CGPoint(x: 0.0, y: 0.0)
+        gradient.endPoint = CGPoint(x: 0.0, y: 1.0)
+        gradient.frame = tableView.bounds
+        let backgroundView = UIView(frame: tableView.bounds)
+        backgroundView.layer.insertSublayer(gradient, at: 0)
+        tableView.backgroundView = backgroundView
+        //self.view.layer.insertSublayer(gradient, at: 0)
         
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -25,25 +37,17 @@ class SelectTableViewController: UITableViewController {
         searchController.searchBar.barTintColor = UIColor.black
         searchController.searchBar.keyboardType = UIKeyboardType.default
         searchController.searchBar.returnKeyType = UIReturnKeyType.done
+        searchController.searchBar.placeholder = "Artist"
         searchController.searchBar.keyboardAppearance = UIKeyboardAppearance.dark
         searchController.searchResultsUpdater = self
         searchController.dimsBackgroundDuringPresentation = false
         definesPresentationContext = true
         tableView.dataSource = dataSource
-        /*
-        let black = UIColor(red: 0, green: 0, blue: 0, alpha: 1.0)
-        let darkPurple = UIColor(red: 24/255.0, green: 18/255.0, blue: 97/255.0, alpha: 1.0)
-        let gradient = CAGradientLayer()
-        gradient.colors = [black.cgColor, darkPurple.cgColor]
-        gradient.locations = [0.0, 0.75, 1.0]
-        gradient.startPoint = CGPoint(x: 0.0, y: 0.0)
-        gradient.endPoint = CGPoint(x: 0.0, y: 1.0)
-        gradient.frame = view.frame
-        self.view.layer.insertSublayer(gradient, at: 0)*/
+        
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
-        self.navigationItem.title = "Select"
+        self.navigationItem.title = "Select Artist"
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.dismissSelectViewController))
 
     }
