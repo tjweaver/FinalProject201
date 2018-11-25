@@ -14,6 +14,9 @@ class Main {
     static var isPlaying = false
     static var userNameLoggedIn = ""
     
+    static var songTitleChosen = ""
+    static var artistTitleChosen = ""
+    
     func getGuestBool() -> Bool
     {
         print("get")
@@ -52,4 +55,16 @@ class Main {
     {
         return Main.isPlaying
     }
+    
+    func setArtistChosen()
+    {
+        
+    }
+    
+    func setSongChosen()
+    {
+        
+    }
+    
+    
 }

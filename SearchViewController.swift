@@ -8,6 +8,85 @@
 
 import UIKit
 
+struct TrackList : Decodable {
+    let resultCount: Int
+    let results: [Track]
+    
+    struct Track : Decodable {
+        let wrapperType: String
+        let kind: String
+        let artistId:  Int
+        let collectionId: Int
+        let trackId: Int
+        let artistName: String
+        let collectionName: String
+        let trackName: String
+        let collectionCensoredName: String
+        let trackCensoredName: String
+        let artistViewUrl: String
+        let collectionViewUrl: String
+        let trackViewUrl: String
+        let previewUrl: String
+        let artworkUrl30: String
+        let artworkUrl60: String
+        let artworkUrl100: String
+        let collectionPrice: Double
+        let trackPrice: Double
+        let releaseDate: String
+        let collectionExplicitness: String
+        let trackExplicitness: String
+        let discCount: Int
+        let discNumber: Int
+        let trackCount: Int
+        let trackNumber: Int
+        let trackTimeMillis: Int
+        let country: String
+        let currency: String
+        let primaryGenreName: String
+        let contentAdvisoryRating: String
+        let isStreamable: Bool
+        
+        enum CodingKeys: String, CodingKey {
+            case wrapperType = "wrapperType"
+            case kind = "kind"
+            case artistId = "artistId"
+            case collectionId = "collectionId"
+            case trackId = "trackId"
+            case artistName = "artistName"
+            case collectionName = "collectionName"
+            case trackName = "trackName"
+            case collectionCensoredName = "collectionCensoredName"
+            case trackCensoredName = "trackCensoredName"
+            case artistViewUrl = "artistViewUrl"
+            case collectionViewUrl = "collectionViewUrl"
+            case trackViewUrl = "trackViewUrl"
+            case previewUrl = "previewUrl"
+            case artworkUrl30 = "artworkUrl30"
+            case artworkUrl60 = "artworkUrl60"
+            case artworkUrl100 = "artworkUrl100"
+            case collectionPrice = "collectionPrice"
+            case trackPrice = "trackPrice"
+            case releaseDate = "releaseDate"
+            case collectionExplicitness = "collectionExplicitness"
+            case trackExplicitness = "trackExplicitness"
+            case discCount = "discCount"
+            case discNumber = "discNumber"
+            case trackCount = "trackCount"
+            case trackNumber = "trackNumber"
+            case trackTimeMillis = "trackTimeMillis"
+            case country = "country"
+            case currency = "currency"
+            case primaryGenreName = "primaryGenreName"
+            case contentAdvisoryRating = "contentAdvisoryRating"
+            case isStreamable = "isStreamable"
+        }
+    }
+}
+
+
+
+
+
 class SearchViewController: UIViewController, UITextFieldDelegate {
 
     // chainable animator
@@ -15,12 +94,33 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
     let artistNameField =  UITextField(frame: CGRect(x: 30, y: 300, width: 300, height: 40))
     let songNameField =  UITextField(frame: CGRect(x: 30, y: 360, width: 300, height: 40))
     let searchTitle = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
+    var pulsatingLayer: CAShapeLayer!
+    var artistName : String = ""
+    var songName : String = ""
+    let client = ItunesAPIClient()
+    var albumView = UIImageView()
+    let selectButton = UIButton(frame: CGRect(x: 30, y: 550, width: 100, height: 100))
+    var songChosenByUser = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
 
-   
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        let endpoint = Itunes.search(term: "young the giant", media: .music(entity: .musicArtist, attribute: .artistTerm))
+        print(endpoint.request)
+        
+        let circularPath = UIBezierPath(arcCenter: .zero, radius: 40, startAngle: 0, endAngle: 2 * CGFloat.pi, clockwise: true)
+        
+        pulsatingLayer = CAShapeLayer()
+        pulsatingLayer.path = circularPath.cgPath
+        pulsatingLayer.strokeColor = UIColor.white.cgColor
+        pulsatingLayer.lineWidth = 10
+        pulsatingLayer.fillColor = UIColor.white.cgColor
+        pulsatingLayer.lineCap = CAShapeLayerLineCap.round
+        pulsatingLayer.position = CGPoint(x:view.center.x,y:view.center.y)
+        view.layer.addSublayer(pulsatingLayer)
 
+        
         self.title = "Search"
         // Background visuals
         let black = UIColor(red: 0, green: 0, blue: 0, alpha: 1.0)
@@ -72,6 +172,8 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         artistNameField.delegate = self
         artistNameField.backgroundColor = UIColor.clear
         artistNameField.keyboardAppearance = UIKeyboardAppearance.dark;
+        artistNameField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+
         self.view.addSubview(artistNameField)
         
         let artistBorder = CALayer()
@@ -98,6 +200,7 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         songNameField.delegate = self
         songNameField.backgroundColor = UIColor.clear
         songNameField.keyboardAppearance = UIKeyboardAppearance.dark;
+        songNameField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         self.view.addSubview(songNameField)
 
         let songBorder = CALayer()
@@ -110,10 +213,68 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
 
         let defaultAlbum = "defaultAlbum.png"
         let albumImage = UIImage(named: defaultAlbum)
-        let albumView = UIImageView(image: albumImage!)
+        albumView = UIImageView(image: albumImage!)
         albumView.frame = CGRect(x: 0, y: 150, width: 120, height: 120)
         view.addSubview(albumView)
         albumView.center.x = view.center.x
+        pulsatingLayer.position = CGPoint(x:view.center.x,y:searchButton.center.y)
+        
+        
+        selectButton.setTitle("Select Song", for: .normal)
+        selectButton.addTarget(self, action: #selector(selectSongAction), for: .touchUpInside)
+        self.view.addSubview(selectButton)
+        selectButton.center.x = view.center.x
+        
+        
+        
+        
+        
+        
+        
+    }
+    
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        print(textField.text!)
+        var jsonURLString = "http://itunes.apple.com/search?term="
+        let artistTerm = artistNameField.text!
+        let artistSearch = artistTerm.replacingOccurrences(of: " ", with: "+")
+        let songTerm = songNameField.text!
+        let songSearch = songTerm.replacingOccurrences(of: " ", with: "+")
+        
+        jsonURLString = jsonURLString+artistSearch+"+"+songSearch+"&entity=song"
+        print("URLSTRING: "+jsonURLString)
+        guard let url = URL(string: jsonURLString) else {
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { (data,response,err) in
+            print("hello")
+            guard let data = data else { return }
+            //let dataString = String(data: data, encoding: .utf8)
+            //print(dataString!)
+            
+            do {
+                let trackListComplete = try
+                    JSONDecoder().decode(TrackList.self, from: data)
+                //print(songComplete.artworkUrl100)
+                if(trackListComplete.results.count != 0)
+                {
+                let URLofStringFromSearch = URL(string: trackListComplete.results[0].artworkUrl100)
+                let data1 = try Data(contentsOf: URLofStringFromSearch!)
+                self.albumView.image = UIImage(data: data1)
+                }
+                
+            } catch let jsonErr {
+                print("Error: ", jsonErr)
+            }
+            
+            
+            }.resume()
+    }
+    
+    
+    override func viewDidAppear(_ animated: Bool) {
+        animatePuslatingLayer()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -122,14 +283,23 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
     
     @objc func queryAction(sender: UIButton!) {
         print("Search query")
-        let artistName = artistNameField.text
-        let songName = songNameField.text
-        
-        print("artist: "+artistName!)
-        print("song: "+songName!)
-        
+        artistName = artistNameField.text ?? "Young the Giant"
+        songName = songNameField.text ?? "My Body"
+        if(artistName.isEmpty == true || songName.isEmpty == true)
+        {
+            artistName = "Young the Giant"
+            songName = "My Body"
+        }
+        print("artist: "+artistName)
+        print("song: "+songName)
+        self.performSegue(withIdentifier: "SearchSegue", sender: self)
         artistNameField.text = "";
         songNameField.text = "";
+    }
+    
+    @objc func selectSongAction(sender: UIButton!) {
+        self.performSegue(withIdentifier: "SelectSong", sender: self)
+
     }
     
     override func touchesBegan(_ touches:Set<UITouch>, with event: UIEvent?) {
@@ -144,8 +314,90 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
+    func animatePuslatingLayer()
+    {
+        let animation = CABasicAnimation(keyPath: "transform.scale")
+        animation.toValue = 1.4
+        animation.duration = 0.8
+        animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+        animation.autoreverses = true
+        animation.repeatCount = Float.infinity
+        pulsatingLayer.add(animation, forKey: "pulsing")
+        
+        let opacityAnimation = CABasicAnimation(keyPath: "opacity");
+        opacityAnimation.fromValue = 1
+        opacityAnimation.toValue = 0
+        opacityAnimation.duration = 1.6
+        opacityAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+        opacityAnimation.repeatCount = Float.infinity
+        pulsatingLayer.add(opacityAnimation, forKey: "fading")
+    }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 
+        // Create a variable that you want to send
+        if segue.identifier == "SearchSegue" {
+            let songToSend : String = self.songName
+            let artistToSend : String = self.artistName
+
+            // Create a new variable to store the instance of PlayerTableViewController
+            let destinationVC = segue.destination as! UINavigationController
+            let targetController = destinationVC.topViewController as! SearchResultsViewController
+            
+            targetController.songName = songToSend
+            targetController.artistName = artistToSend
+        }
+        else if segue.identifier == "SelectSong" {
+            let destinationVC = segue.destination as! UINavigationController
+            _ = destinationVC.topViewController as! SelectTableViewController
+        }
+    }
+    
+    /*
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        print(textField.text!)
+        //client.searchForArtists(withTerm: artistNameField.text!) { artists, error in}
+        //http://itunes.apple.com/search?term=drake+god+plan&entity=song
+        
+        var jsonURLString = "http://itunes.apple.com/search?term="
+        let artistTerm = artistNameField.text!
+        let artistSearch = artistTerm.replacingOccurrences(of: " ", with: "+")
+        let songTerm = songNameField.text!
+        let songSearch = songTerm.replacingOccurrences(of: " ", with: "+")
+
+        jsonURLString = jsonURLString+artistSearch+songSearch+"&entity=song"
+        
+        guard let url = URL(string: jsonURLString) else {
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { (data,response,err) in
+            print("hello")
+            guard let data = data else { return }
+            let dataString = String(data: data, encoding: .utf8)
+            print(dataString!)
+            
+            do {
+                let songComplete = try
+                    JSONDecoder().decode(Track.self, from: data)
+                print(songComplete.artworkUrl100)
+                let URLofStringFromSearch = URL(string: songComplete.artworkUrl100)
+                let data1 = try Data(contentsOf: URLofStringFromSearch!)
+                self.albumView.image = UIImage(data: data1)
+
+            } catch let jsonErr {
+                print("Error: ", jsonErr)
+            }
+            
+            
+        }.resume()
+
+    }*/
+    
+    func downloadArtworkForAlbum(_ album: Album)
+    {
+        //let downloader = ArtworkDownloader(album: album)
+    }
 }
 
 

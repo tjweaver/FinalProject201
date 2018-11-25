@@ -142,7 +142,11 @@ class MusicPlayerViewController: UIViewController {
     }
     
     func trackAudio() {
-        var normalizedTime = Float(player.currentTime * 100.0 / player.duration)
+//        var normalizedTime = Float(player.currentTime * 100.0 / player.duration)
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
     }
     /*
     // MARK: - Navigation

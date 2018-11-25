@@ -18,7 +18,11 @@ class ProfileViewController: UIViewController {
         
         maskView.image = UIImage(named: "mask.png")
 
-        let profileDefault = "jay.png"
+        var profileDefault = "bigGuest.png"
+        if(Main().getGuestBool() == false)
+        {
+            profileDefault = "jay.png"
+        }
         let profilePic = UIImage(named: profileDefault)
         profilePicView = UIImageView(image: profilePic!)
         profilePicView.mask = maskView

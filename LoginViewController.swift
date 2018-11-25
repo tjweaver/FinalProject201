@@ -395,4 +395,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         return userTitle
     }
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
 }
