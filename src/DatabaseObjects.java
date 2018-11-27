@@ -43,6 +43,20 @@ class Song {
 	
 }
 
+class Feed{
+	private String username, songName;
+	public Feed(String username, String songName) {
+		this.username=username;
+		this.songName=songName;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public String getSongName() {
+		return songName;
+	}
+}
+
 class User {
 	private String username, firstName, lastName, passhash, salt;
 	
