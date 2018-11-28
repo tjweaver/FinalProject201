@@ -2,15 +2,20 @@ import java.util.ArrayList;
 
 class Song {
 	private String name, artist, genre, album, path, imagePath;
-	private int year;
+	private int id, year;
 	
-	public Song(String path, String imagePath, String artist, String album, String name, int year, String genre) {
+	public Song(int id, String path, String imagePath, String artist, String album, String name, int year, String genre) {
+		this.id = id;
 		this.name = name;
 		this.artist = artist;
 		this.genre = genre;
 		this.album = album;
 		this.path = path;
 		this.imagePath = imagePath;
+	}
+	
+	public int getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -59,13 +64,19 @@ class Feed{
 
 class User {
 	private String username, firstName, lastName, passhash, salt;
+	private int id;
 	
-	public User(String username, String firstName, String lastName, String passhash, String salt) {
+	public User(int id, String username, String firstName, String lastName, String passhash, String salt) {
+		this.id = id;
 		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.passhash = passhash;
 		this.salt = salt;
+	}
+	
+	public int getId () {
+		return id;
 	}
 
 	public String getUsername() {
@@ -117,11 +128,17 @@ class Rating {
 }
 
 class Playlist {
+	private int id;
 	private ArrayList<Song> songs;
 	private String name;
 	
-	public Playlist(String name) {
+	public Playlist(String name, int id) {
+		this.id = id;
 		this.name = name;
+	}
+	
+	public int getId() {
+		return id;
 	}
 	
 	public void addSongs(ArrayList<Song> songs) {

@@ -52,8 +52,9 @@ class DatabaseConnector{
 	public Song createSong() {
 		// Convert result into POJO
 		String path = null, iPath = null, artist = null, album = null, songName = null, genre = null;
-		int year = -1;
+		int id = -1, year = -1;
 		try {
+			id = rs.getInt("songID");
 			path = rs.getString("filePath");
 			iPath = rs.getString("imageFilePath");
 			artist = rs.getString("artist");
@@ -62,7 +63,7 @@ class DatabaseConnector{
 			genre = rs.getString("genre");
 			year = rs.getShort("yearOfRelease");
 			// Return POJO
-			return new Song(path, iPath, artist, album, songName, year, genre);
+			return new Song(id, path, iPath, artist, album, songName, year, genre);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
@@ -82,8 +83,15 @@ class DatabaseConnector{
 	}
 	
 	public Playlist createPlaylist(String name) {
+		int id = -1;
+		try {
+			rs.next();
+			id = rs.getInt("playlistID");
+		} catch (SQLException e) {
+			System.out.println("error getting playlistID");
+		}
 		ArrayList<Song> songs = createSongs();
-		Playlist p = new Playlist(name);
+		Playlist p = new Playlist(name, id);
 		p.addSongs(songs);
 		return p;
 	}
@@ -160,6 +168,7 @@ class DatabaseConnector{
 			ps.setInt(1, id);
 			// Execute
 			rs = ps.executeQuery();
+			rs.next();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
@@ -175,6 +184,7 @@ class DatabaseConnector{
 			ps.setString(1, name);
 			// Execute
 			rs = ps.executeQuery();
+			rs.next();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
