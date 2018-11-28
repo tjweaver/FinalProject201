@@ -17,9 +17,9 @@ class Constants {
 											+ "Songs.genre "
 											+ "FROM Songs "
 											+ "INNER JOIN Playlists "
-											+ "ON (Songs.songID = Playlists.songID AND playlistName=?";
+											+ "ON (Songs.songID = Playlists.songID AND playlistName=?)";
 	
-	public static final String AUTHENTICATE = "SELECT COUNT(*) FROM Users";
+	public static final String AUTHENTICATE = "SELECT COUNT(*) FROM Users WHERE (username=? AND passhash=?)";
 	// Update Statements
 	public static final String UPDATE_RATING = "UPDATE Ratings SET rating = ? WHERE (userID=? AND songID=?)";
 	// Deletion Statements

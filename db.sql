@@ -56,5 +56,5 @@ CREATE TABLE frames(
     co10 double not null,
     co11 double not null,
     co12 double not null,
-	foreign key fk1(songID) references Songs(songID)    
+	foreign key fk5(songID) references Songs(songID)    
 );
