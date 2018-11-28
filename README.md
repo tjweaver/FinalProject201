@@ -24,3 +24,6 @@ The servlets in our code mainly act as an intermediary between the database and 
 
 Front-End:
 For the front end the provided LoginViewController is completed. The rest of the main views are Explore, Search, and Profile. The general layout code is complete and awaiting the integration with the backend. Once the ExploreViewController is complete and the multithreading works, it can be dropped into the main Xcode project. SearchViewController is also mostly finished, SearchResultsViewController needs the most work as it relies primarily on the connection to the backend. Music streaming via MusicStreamViewController is in progress.
+
+Multi-threading:
+The multi-threading idea in out project is implemented by a feed page in the app. The feed will update and send the music playing activity of all registered users to the feed page of all users. Therefore server have to storing in the music playing behaviors of users and send it to the feed page simultaneously, which is done by multi-threading.

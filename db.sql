@@ -12,7 +12,16 @@ CREATE TABLE Songs (
     yearofRelease INT(4) NOT NULL,
     genre VARCHAR(20) NOT NULL
 );
+<<<<<<< HEAD
+Create table LUT(
+	playlistID int(10) primary key not null auto_increment,
+    playlistName varchar(100) not null,
+    songName varchar(100) not null
+    );
+	
+=======
 
+>>>>>>> df9c97d6e59f4d212c613dc9e925e48f3749e15a
 CREATE TABLE Users (
 	userID INT(11) PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(20) NOT NULL,

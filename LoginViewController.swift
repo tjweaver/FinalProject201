@@ -8,19 +8,45 @@
 
 import UIKit
 
-class LoginViewController: UIViewController {
+extension UITextField {
     
-    var isAlreadyAUser = false;
+    func setPadding()
+    {
+        let padView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: self.frame.height))
+        self.leftView = padView
+        self.leftViewMode = .always
+    }
+    
+    func setBottomBorder()
+    {
+        self.layer.shadowColor = UIColor.white.cgColor
+        self.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+        self.layer.shadowOpacity = 1.0
+        self.layer.shadowRadius = 0.0
+    }
+}
+
+class LoginViewController: UIViewController, UITextFieldDelegate {
+    
+    var isAlreadyAUser = false
+    var isGuest = false
     let loginTitle = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 35))
+    let errorPasswordMessage = UILabel(frame: CGRect(x: 30, y: 580, width: 200, height: 35))
     let toggleSignin = UIButton(frame: CGRect(x: 30, y: 280, width: 110, height: 50))
     let guestSignin = UIButton(frame: CGRect(x: 70, y: 480, width: 110, height: 50))
     let submitButton = UIButton(frame: CGRect(x: 190, y: 480, width: 105, height: 50))
     let userNameTextField =  UITextField(frame: CGRect(x: 30, y: 350, width: 300, height: 40))
     let passwordTextField =  UITextField(frame: CGRect(x: 30, y: 410, width: 300, height: 40))
     let rePasswordTextField =  UITextField(frame: CGRect(x: 30, y: 470, width: 300, height: 40))
-
+    public var userTitle = ""
     override func viewDidLoad() {
         super.viewDidLoad()
+        let errorFont = UIFont(name: "HelveticaNeue", size: 15.0)!
+        errorPasswordMessage.text = "Passwords do not match"
+        errorPasswordMessage.textColor = UIColor.red
+        errorPasswordMessage.font = errorFont
+        errorPasswordMessage.alpha = 0.0
+        self.view.addSubview(errorPasswordMessage)
         /*
         self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action:Selector(“endEditing:”)))
         let tap = UITapGestureRecognizer(target: self.view, action: Selector(“endEditing:”))
@@ -136,50 +162,98 @@ class LoginViewController: UIViewController {
         gradientLayer3.colors = [betterBlue.cgColor, brightPurple.cgColor]
         submitButton.layer.insertSublayer(gradientLayer3, at: 0)
 
-        userNameTextField.delegate = self as? UITextFieldDelegate
-        userNameTextField.placeholder = "Username"
-        userNameTextField.font = UIFont.systemFont(ofSize: 15)
+        //userNameTextField.placeholder = "Username"
+        userNameTextField.attributedPlaceholder = NSAttributedString(string: "Username",
+                                                               attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
+        userNameTextField.textColor = UIColor.white
+        //userNameTextField.keyboardAppearance = UIKeyboardAppearance.dark;
+        userNameTextField.font = UIFont(name: "HelveticaNeue-Light", size: 15.0)!
         userNameTextField.borderStyle = UITextField.BorderStyle.roundedRect
         userNameTextField.autocorrectionType = UITextAutocorrectionType.no
         userNameTextField.keyboardType = UIKeyboardType.default
         userNameTextField.returnKeyType = UIReturnKeyType.done
+        userNameTextField.autocapitalizationType = .none
         userNameTextField.clearButtonMode = UITextField.ViewMode.whileEditing;
         userNameTextField.contentVerticalAlignment = UIControl.ContentVerticalAlignment.center
-        userNameTextField.delegate = self as? UITextFieldDelegate
+        userNameTextField.delegate = self
+        userNameTextField.backgroundColor = UIColor.clear
         self.view.addSubview(userNameTextField)
         userNameTextField.alpha = CGFloat(0)
         UIView.animate(withDuration: 1.5, delay: 1.6, animations: {
             self.userNameTextField.alpha = CGFloat(1)
         }, completion:nil)
 
-        passwordTextField.delegate = self as? UITextFieldDelegate
+        let userBorder = CALayer()
+        let width = CGFloat(2.0)
+        userBorder.borderColor = UIColor.lightGray.cgColor
+        userBorder.frame = CGRect(x: 0, y: userNameTextField.frame.size.height - width, width: userNameTextField.frame.size.width, height: userNameTextField.frame.size.height)
+        
+        userBorder.borderWidth = width
+        userNameTextField.keyboardAppearance = UIKeyboardAppearance.dark;
+        userNameTextField.layer.addSublayer(userBorder)
+        userNameTextField.layer.masksToBounds = true
+        
+        
+        passwordTextField.attributedPlaceholder = NSAttributedString(string: "Password",
+                                                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
+        passwordTextField.textColor = UIColor.white
+        passwordTextField.backgroundColor = UIColor.clear
+
         passwordTextField.placeholder = "Password"
-        passwordTextField.font = UIFont.systemFont(ofSize: 15)
+        passwordTextField.keyboardAppearance = UIKeyboardAppearance.dark;
+        passwordTextField.font = UIFont(name: "HelveticaNeue-Light", size: 15.0)!
         passwordTextField.borderStyle = UITextField.BorderStyle.roundedRect
         passwordTextField.autocorrectionType = UITextAutocorrectionType.no
         passwordTextField.keyboardType = UIKeyboardType.default
+        passwordTextField.autocapitalizationType = .none
         passwordTextField.returnKeyType = UIReturnKeyType.done
+        passwordTextField.isSecureTextEntry = true
         passwordTextField.clearButtonMode = UITextField.ViewMode.whileEditing;
         passwordTextField.contentVerticalAlignment = UIControl.ContentVerticalAlignment.center
-        passwordTextField.delegate = self as? UITextFieldDelegate
+        passwordTextField.delegate = self
         self.view.addSubview(passwordTextField)
         passwordTextField.alpha = CGFloat(0)
         UIView.animate(withDuration: 1.5, delay: 1.6, animations: {
             self.passwordTextField.alpha = CGFloat(1)
         }, completion:nil)
         
-        rePasswordTextField.delegate = self as? UITextFieldDelegate
+        let passBorder = CALayer()
+        passBorder.borderColor = UIColor.lightGray.cgColor
+        passBorder.frame = CGRect(x: 0, y: passwordTextField.frame.size.height - width, width: passwordTextField.frame.size.width, height: passwordTextField.frame.size.height)
+        
+        passBorder.borderWidth = width
+        passwordTextField.keyboardAppearance = UIKeyboardAppearance.dark;
+        passwordTextField.layer.addSublayer(passBorder)
+        passwordTextField.layer.masksToBounds = true
+
+        
+        rePasswordTextField.delegate = self
+        rePasswordTextField.attributedPlaceholder = NSAttributedString(string: "Reenter Password",
+                                                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
+        rePasswordTextField.textColor = UIColor.white
+        rePasswordTextField.backgroundColor = UIColor.clear
         rePasswordTextField.placeholder = "Reenter Password"
-        rePasswordTextField.font = UIFont.systemFont(ofSize: 15)
+        rePasswordTextField.font = UIFont(name: "HelveticaNeue-Light", size: 15.0)!
         rePasswordTextField.borderStyle = UITextField.BorderStyle.roundedRect
         rePasswordTextField.autocorrectionType = UITextAutocorrectionType.no
         rePasswordTextField.keyboardType = UIKeyboardType.default
+        rePasswordTextField.autocapitalizationType = .none
+        rePasswordTextField.isSecureTextEntry = true
         rePasswordTextField.returnKeyType = UIReturnKeyType.done
         rePasswordTextField.clearButtonMode = UITextField.ViewMode.whileEditing;
         rePasswordTextField.contentVerticalAlignment = UIControl.ContentVerticalAlignment.center
-        rePasswordTextField.delegate = self as? UITextFieldDelegate
         self.view.addSubview(rePasswordTextField)
         rePasswordTextField.isHidden = true
+
+        
+        let repassBorder = CALayer()
+        repassBorder.borderColor = UIColor.lightGray.cgColor
+        repassBorder.frame = CGRect(x: 0, y: rePasswordTextField.frame.size.height - width, width: rePasswordTextField.frame.size.width, height: rePasswordTextField.frame.size.height)
+         
+        repassBorder.borderWidth = width
+        rePasswordTextField.keyboardAppearance = UIKeyboardAppearance.dark;
+        rePasswordTextField.layer.addSublayer(repassBorder)
+        rePasswordTextField.layer.masksToBounds = true
 
         
     }
@@ -216,19 +290,75 @@ class LoginViewController: UIViewController {
     
     @objc func guestActionSignin(sender: UIButton!) {
         print("Guest login")
+        userTitle = "Guest"
+        isGuest = true
+        self.performSegue(withIdentifier: "TabSegue", sender: self)
+        self.performSegue(withIdentifier: "LoginSegue", sender: self)
 
     }
     
     @objc func submitAction(sender: UIButton!) {
         print("Submitting user info")
         
+        if(isAlreadyAUser != true)
+        {
+            let usernameInfo = userNameTextField.text
+            let passwordInfo = passwordTextField.text
+            
+            print("user: "+usernameInfo!)
+            print("password: "+passwordInfo!)
+            
+            Main().setUsername(name: usernameInfo!)
+            self.performSegue(withIdentifier: "TabSegue", sender: self)
+            self.performSegue(withIdentifier: "LoginSegue", sender: self)
+            userNameTextField.text = "";
+            passwordTextField.text = "";
+        }
+        else
+        {
+            let usernameInfo = userNameTextField.text
+            let passwordInfo = passwordTextField.text
+            let repasswordInfo = rePasswordTextField.text
+            
+            if(repasswordInfo != passwordInfo)
+            {
+                passwordDoNotMatch()
+                print("passwords don't match")
+                userNameTextField.text = "";
+                passwordTextField.text = "";
+                rePasswordTextField.text = "";
+            }
+            else
+            {
+                Main().setUsername(name: usernameInfo!)
+                self.performSegue(withIdentifier: "TabSegue", sender: self)
+                self.performSegue(withIdentifier: "LoginSegue", sender: self)
+                print("user: "+usernameInfo!)
+                print("password: "+passwordInfo!)
+                print("repassword: "+repasswordInfo!)
+                
+                userNameTextField.text = "";
+                passwordTextField.text = "";
+                rePasswordTextField.text = "";
+            }
+        }
+        
+
+    }
+    
+    func passwordDoNotMatch()
+    {
+        UIView.animate(withDuration: 5.0, delay: 0.0, animations: {
+            self.errorPasswordMessage.alpha = CGFloat(1)
+            self.errorPasswordMessage.alpha = CGFloat(0)
+        }, completion:nil)
     }
     
     override func touchesBegan(_ touches:Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         textField.resignFirstResponder()
         //or
@@ -237,14 +367,35 @@ class LoginViewController: UIViewController {
     }
     
 
-    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
+        if(segue.destination is TabBarViewController)
+        {
+            let vc = segue.destination as? TabBarViewController
+            if(isGuest == true)
+            {
+                Main().setGuestBool(val: true)
+                Main().setUsername(name: "Guest")
+                vc?.nameOfuser = "Guest"
+            }
+            else
+            {
+                Main().setGuestBool(val: false)
+                vc?.nameOfuser = "Jay Doshi"
+            }
+        }
     }
-    */
+    
+    func getUserTitle() -> String
+    {
+        return userTitle
+    }
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
 }
