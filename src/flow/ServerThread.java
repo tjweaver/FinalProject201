@@ -31,7 +31,7 @@ class ServerThread extends Thread {
 		try {
 			while(true) {
 				String line = br.readLine();
-				fs.broadcast(line, this);
+				fs.broadcast(line);
 			}
 		} catch (IOException ioe) {
 			System.out.println("ioe in ServerThread.run(): " + ioe.getMessage());

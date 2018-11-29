@@ -21,21 +21,35 @@ public class FirstServlet extends HttpServlet {
 
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		//response.getWriter().append("Served at: ").append(request.getContextPath());
 		System.out.println("in do get");
 		String songNameFromFront = request.getParameter("songname");
 		String artistNameFromFront = request.getParameter("artistname");
 		String userFromFront = request.getParameter("username");
 		String feedString = userFromFront+" searched for "+songNameFromFront+" by "+artistNameFromFront;
-		
-		ServletContext context = request.getSession().getServletContext();
-		FeedSocket ff = (FeedSocket) context.getAttribute("listener");
-		ff.broadcast(feedString);
 
-//		String testResponseStr = "Superposition by Young the Giant%Take Me Home, Country Roads by John Denvers%God's Plan by Drake%";
-//		response.getWriter().append(testResponseStr);
+		System.out.println(songNameFromFront+" by "+artistNameFromFront);
+		System.out.println("searched by "+userFromFront);
+		System.out.println(feedString);
+
 		
+		if(songNameFromFront != null)
+		{
+			DatabaseConnector db = new DatabaseConnector();
+			db.connect();
+			Playlist p = db.getPlaylist(songNameFromFront);
+			System.out.println(p);
+			String finalResponse = db.playlistToString(p);
+
+			
+			ServletContext context = request.getSession().getServletContext();
+			FeedSocket ff = (FeedSocket) context.getAttribute("listener");
+			ff.broadcast(finalResponse);
+		}
+		else
+		{
+			String noResults = "%";
+			response.getWriter().append(noResults);
+		}
 	}
  
 
