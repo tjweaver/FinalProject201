@@ -26,13 +26,11 @@ class FeedSocket {
 		}
 	}
 	
-	public void broadcast(String message, ServerThread st) {
+	public void broadcast(String message) {
 		if (message != null) {
 			System.out.println(message);
 			for(ServerThread threads : serverThreads) {
-				if (st != threads) {
-					threads.sendMessage(message);
-				}
+				threads.sendMessage(message);
 			}
 		}
 	}
