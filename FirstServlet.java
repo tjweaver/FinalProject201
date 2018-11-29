@@ -43,14 +43,16 @@ public class FirstServlet extends HttpServlet {
 			String finalResponse = db.playlistToString(p);
 			response.getWriter().append(finalResponse);
 			MultiServlet.appendFeedString(feedString);
-
+			
+			ServletContext context = request.getSession().getServletContext();
+			FeedSocket ff = (FeedSocket) context.getAttribute("listener");
+			ff.broadcast(feedString);
 		}
 		else
 		{
 			String noResults = "%";
 			response.getWriter().append(noResults);
 		}
-		
 
 
 	}
