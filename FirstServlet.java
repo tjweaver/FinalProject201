@@ -40,7 +40,6 @@ public class FirstServlet extends HttpServlet {
 			System.out.println(p);
 			String finalResponse = db.playlistToString(p);
 
-			
 			ServletContext context = request.getSession().getServletContext();
 			FeedSocket ff = (FeedSocket) context.getAttribute("listener");
 			ff.broadcast(finalResponse);
@@ -50,6 +49,7 @@ public class FirstServlet extends HttpServlet {
 			String noResults = "%";
 			response.getWriter().append(noResults);
 		}
+
 	}
  
 
