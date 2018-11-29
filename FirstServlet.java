@@ -1,7 +1,8 @@
+package servlet;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -28,27 +29,30 @@ public class FirstServlet extends HttpServlet {
 		String artistNameFromFront = request.getParameter("artistname");
 		String userFromFront = request.getParameter("username");
 		String feedString = userFromFront+" searched for "+songNameFromFront+" by "+artistNameFromFront;
-		
-		ServletContext context = request.getSession().getServletContext();
-		FeedSocket ff = (FeedSocket) context.getAttribute("listener");
-		ff.broadcast(feedString);
-		
 		System.out.println(songNameFromFront+" by "+artistNameFromFront);
 		System.out.println("searched by "+userFromFront);
 		System.out.println(feedString);
-		MultiServlet.appendFeedString(feedString);
+
 		
+		if(songNameFromFront != null)
+		{
+			DatabaseConnector db = new DatabaseConnector();
+			db.connect();
+			Playlist p = db.getPlaylist(songNameFromFront);
+			System.out.println(p);
+			String finalResponse = db.playlistToString(p);
+			response.getWriter().append(finalResponse);
+			MultiServlet.appendFeedString(feedString);
+
+		}
+		else
+		{
+			String noResults = "%";
+			response.getWriter().append(noResults);
+		}
 		
-		
-		
-		
-		
-		
-		
-		String testResponseStr = "Superposition by Young the Giant%Take Me Home, Country Roads by John Denvers%God's Plan by Drake%";
 
 
-		response.getWriter().append(testResponseStr);
 	}
  
 
