@@ -1,8 +1,7 @@
-package servlet;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -29,22 +28,14 @@ public class FirstServlet extends HttpServlet {
 		String artistNameFromFront = request.getParameter("artistname");
 		String userFromFront = request.getParameter("username");
 		String feedString = userFromFront+" searched for "+songNameFromFront+" by "+artistNameFromFront;
-		System.out.println(songNameFromFront+" by "+artistNameFromFront);
-		System.out.println("searched by "+userFromFront);
-		System.out.println(feedString);
-		MultiServlet.appendFeedString(feedString);
 		
-		
-		
-		
-		
-		
-		
-		
-		String testResponseStr = "Superposition by Young the Giant%Take Me Home, Country Roads by John Denvers%God's Plan by Drake%";
+		ServletContext context = request.getSession().getServletContext();
+		FeedSocket ff = (FeedSocket) context.getAttribute("listener");
+		ff.broadcast(feedString);
 
-
-		response.getWriter().append(testResponseStr);
+//		String testResponseStr = "Superposition by Young the Giant%Take Me Home, Country Roads by John Denvers%God's Plan by Drake%";
+//		response.getWriter().append(testResponseStr);
+		
 	}
  
 
