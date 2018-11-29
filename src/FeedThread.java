@@ -14,9 +14,11 @@ public class FeedThread extends Thread{
 		Feed adding = new Feed(username, songName);
 		Server.pastFeeds.add(adding);
 	}
+	
 	private void updateFeed() {
 		//send the pastFeeds date to front-end
 	}
+	
 	public void run() {
 		while(true) {
 			if(onFeedPage) {

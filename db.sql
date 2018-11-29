@@ -47,6 +47,21 @@ CREATE TABLE Ratings (
     FOREIGN KEY fk4(songID) REFERENCES Songs(songID)
 );
 
+CREATE TABLE NewPlaylists(
+	playlistID INT(11) NOT NULL,
+	userID INT(11) NOT NULL,
+    songID INT(11) NOT NULL,
+    playlistName VARCHAR(30) NOT NULL,
+    FOREIGN KEY fk9(userID) REFERENCES Users(userID),
+    FOREIGN KEY fk10(songID) REFERENCES Songs(songID)
+);
+
+CREATE TABLE Lookup(
+	songID INT(11),
+    playlistID INT(11),
+    FOREIGN KEY fk5(songID) REFERENCES Songs(songID)
+);
+
 CREATE TABLE frames(
 	frame_ID double primary key not null auto_increment,
     songID int(10) not null,
