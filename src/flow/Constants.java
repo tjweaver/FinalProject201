@@ -1,3 +1,5 @@
+package flow;
+
 class Constants {
 	public static final int GOOD_RES = 1;
 	public static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";

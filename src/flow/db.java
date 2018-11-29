@@ -1,3 +1,5 @@
+package flow;
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -284,7 +286,14 @@ class DatabaseConnector{
 	public Playlist getPlaylist(String song) {
 		if (!connected) return null;
 		// Get the song id
-		int sid = getSongByName(song).getId();
+		// Check to be sure that our db has the song
+		Song target = getSongByName(song);
+		int sid = -1;
+		if(target == null) {
+			return null;
+		}else {
+			sid = target.getId();
+		}
 		// Get the playlistid
 		int plid = getPlaylistID(sid);
 		String name = getPlaylistName(plid);
