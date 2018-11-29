@@ -1,8 +1,7 @@
-package servlet;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -29,6 +28,11 @@ public class FirstServlet extends HttpServlet {
 		String artistNameFromFront = request.getParameter("artistname");
 		String userFromFront = request.getParameter("username");
 		String feedString = userFromFront+" searched for "+songNameFromFront+" by "+artistNameFromFront;
+		
+		ServletContext context = request.getSession().getServletContext();
+		FeedSocket ff = (FeedSocket) context.getAttribute("listener");
+		ff.broadcast(feedString);
+		
 		System.out.println(songNameFromFront+" by "+artistNameFromFront);
 		System.out.println("searched by "+userFromFront);
 		System.out.println(feedString);
